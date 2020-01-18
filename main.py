@@ -4,7 +4,7 @@ import sys
 import logicaTablero            #Logica de los tableros posibles
 
 #constantes 
-TIEMPO_DE_ESPERA = 1            
+TIEMPO_DE_ESPERA = 0.5            
 META = 100
 MAX_DADO = 6           #numero maximo que puede sacar el dado (6), dos dados (12)
 MIN_DADO = 1            #numero minimo que puede sacar el dado (1), dos daos (2)
@@ -14,6 +14,12 @@ class jugador:
     nombre = ""
     posicion = 1
     estado = False
+
+class tableroJuego:
+    nombre = 0
+    giro = logicaTablero.giro
+    serpientes = logicaTablero.serpientes
+    escaleras = logicaTablero.escaleras
 
 # Sentido que puede tomar el juego horario (1,2,3,4)
 horario = {
@@ -34,29 +40,29 @@ antiHorario = {
 #Busca si el jugador cumple las condiciones para ganar la partida
 def ganador(jugador):
     time.sleep(TIEMPO_DE_ESPERA)
-    if jugador.posicion = META:
+    if jugador.posicion == META:
         print("\n\n\n\n\n" + jugador.nombre + " GANO EL JUEGO")
         print("\n FELICITACIONES " + jugador.nombre)
         sys.exit(1)
 
 #Verifica si un jugadr ha caido en una escalera o serpiente y realiza la operacion
-def escalerasSerpientes(jugador, dado):
+def escalerasSerpientes(jugador, dado, tablero):
     time.sleep(TIEMPO_DE_ESPERA)
     posicion_actual = jugador.posicion
     posicion_obtenida = jugador.posicion + dado
 
-    if posicion_obtenida > MAX_DADO:
+    if posicion_obtenida > META:
         print("Necesitas " + str(MAX_DADO - posicion_actual) + " Para Ganar")
         return posicion_actual
 
     print("\n" + jugador.nombre + " esta en  " + str(posicion_obtenida))
 
-    if posicion_obtenida in logicaTablero.serpientes:
-        posicion_final = logicaTablero.serpientes.get(posicion_obtenida)
+    if posicion_obtenida in tablero.serpientes:
+        posicion_final = tablero.serpientes.get(posicion_obtenida)
         print("\n" + jugador.nombre + " Se lo comio una serpiente, ahora esta en  " + str(posicion_final))
 
-    elif posicion_obtenida in logicaTablero.escaleras:
-        posicion_final = logicaTablero.escaleras.get(posicion_obtenida)
+    elif posicion_obtenida in tablero.escaleras:
+        posicion_final = tablero.escaleras.get(posicion_obtenida)
         print("\n" + jugador.nombre + " Subio una escalera, ahora esta " + str(posicion_final))
 
     else:
@@ -72,8 +78,8 @@ def get_dadoValor():
     return dado_obtenido
 
 #Cambia el sentido de la partida 
-def cambio(jugador, turno_jugador, sentido):
-    if jugador.posicion in logicaTablero.giro:
+def cambio(jugador, turno_jugador, sentido, tablero):
+    if jugador.posicion in tablero.giro:
         if sentido == 1:
             turno_jugador = horario.get(turno_jugador)
         if sentido == 2:
@@ -89,7 +95,7 @@ def cambio(jugador, turno_jugador, sentido):
     return (turno_jugador + 1), sentido
 
 #Turno del jugador
-def turno(jugador):
+def turno(jugador, tablero):
     time.sleep(TIEMPO_DE_ESPERA)
     input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ")            #imput para gira el dado
     dado_obtenido = get_dadoValor()
@@ -121,9 +127,47 @@ def turno(jugador):
                 return jugador.posicion
 
     time.sleep(TIEMPO_DE_ESPERA)
-    jugador.posicion = escalerasSerpientes(jugador, dado_obtenido)
+    jugador.posicion = escalerasSerpientes(jugador, dado_obtenido, tablero)
     ganador(jugador)
     return jugador.posicion
+
+#Escoge cual de los 6 tableros va a usar en funcion de en numero que salga en el dado
+def definirTablero():
+    input_1 = input("\nLanza el dado para escoger que tablero se va a jugar") 
+    dado_obtenido = get_dadoValor()
+    print ("\n el tablero seleccionado fue el: " + str(dado_obtenido))
+    tablero = tableroJuego()
+    if dado_obtenido == 1:
+        tablero.nombre = 1
+        tablero.giro = logicaTablero.giro1
+        tablero.escaleras = logicaTablero.escaleras1
+        tablero.serpientes = logicaTablero.serpientes1
+    elif dado_obtenido == 2:
+        tablero.nombre = 2
+        tablero.giro = logicaTablero.giro2
+        tablero.escaleras = logicaTablero.escaleras2
+        tablero.serpientes = logicaTablero.serpientes2
+    elif dado_obtenido == 3:
+        tablero.nombre = 3
+        tablero.giro = logicaTablero.giro3
+        tablero.escaleras = logicaTablero.escaleras3
+        tablero.serpientes = logicaTablero.serpientes3
+    elif dado_obtenido == 4:
+        tablero.nombre = 4
+        tablero.giro = logicaTablero.giro4
+        tablero.escaleras = logicaTablero.escaleras4
+        tablero.serpientes = logicaTablero.serpientes4
+    elif dado_obtenido == 5:
+        tablero.nombre = 5
+        tablero.giro = logicaTablero.giro5
+        tablero.escaleras = logicaTablero.escaleras5
+        tablero.serpientes = logicaTablero.serpientes5
+    elif dado_obtenido == 6:
+        tablero.nombre = 6
+        tablero.giro = logicaTablero.giro6
+        tablero.escaleras = logicaTablero.escaleras6
+        tablero.serpientes = logicaTablero.serpientes6
+    return tablero
 
 #Asigna nombre a los jugadores
 def definirJugadores():
@@ -150,6 +194,7 @@ def inicioPartida():
     time.sleep(TIEMPO_DE_ESPERA)
     J1, J2, J3, J4 = definirJugadores() #Definiendo jugadores
     time.sleep(TIEMPO_DE_ESPERA)
+    tablero = definirTablero()
 
     turno_para_jugar = 1
     sentido = 1
@@ -157,17 +202,17 @@ def inicioPartida():
     while True:
 
         if turno_para_jugar == 1:
-            J1.posicion= turno(J1)
-            turno_para_jugar, sentido = cambio(J1, turno_para_jugar, sentido)
+            J1.posicion= turno(J1, tablero)
+            turno_para_jugar, sentido = cambio(J1, turno_para_jugar, sentido, tablero)
         if turno_para_jugar == 2:
-            J2.posicion= turno(J2)
-            turno_para_jugar, sentido = cambio(J2, turno_para_jugar, sentido)
+            J2.posicion= turno(J2, tablero)
+            turno_para_jugar, sentido = cambio(J2, turno_para_jugar, sentido, tablero)
         if turno_para_jugar == 3:
-            J3.posicion= turno(J3)
-            turno_para_jugar, sentido = cambio(J3, turno_para_jugar, sentido)
+            J3.posicion= turno(J3, tablero)
+            turno_para_jugar, sentido = cambio(J3, turno_para_jugar, sentido, tablero)
         if turno_para_jugar == 4:
-            J4.posicion= turno(J4)
-            turno_para_jugar, sentido = cambio(J4, turno_para_jugar, sentido)
+            J4.posicion= turno(J4, tablero)
+            turno_para_jugar, sentido = cambio(J4, turno_para_jugar, sentido, tablero)
 
         if turno_para_jugar == 5:
             turno_para_jugar = 1
