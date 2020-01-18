@@ -9,6 +9,7 @@ META = 100
 MAX_DADO = 6           #numero maximo que puede sacar el dado (6), dos dados (12)
 MIN_DADO = 1            #numero minimo que puede sacar el dado (1), dos daos (2)
 
+#Objeto Jugador
 class jugador:
     nombre = ""
     posicion = 1
@@ -88,6 +89,33 @@ def turno(jugador):
     time.sleep(TIEMPO_DE_ESPERA)
     input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ")            #imput para gira el dado
     dado_obtenido = get_dadoValor()
+
+    #Revisa si el jugador esta maccado para poder jugar correctamente
+    if (jugador.estado == True and dado_obtenido != 6):
+        print("\n Tienes que sacar 6 para poder volver a jugar \n")
+        print("\n" + jugador.nombre + " esta en  " + str(jugador.posicion))
+        return jugador.posicion
+    elif (jugador.estado == True and dador_obtenido == 6):
+        jugador.estado = False
+
+    #Si saca 6 vuelve a jugar, si saca 6, 3 veces vuleve a la casilla 1
+    if dado_obtenido == 6:
+        input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ") 
+        dado_extra = get_dadoValor()
+        dado_obtenido = dado_obtenido + dado_extra 
+        print("\n las suma de los dados es " + str(dado_obtenido))
+        if dado_extra == 6:
+            input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ") 
+            dado_extra = get_dadoValor()
+            dado_obtenido = dado_obtenido + dado_extra
+            print("\n las suma de los dados es " + str(dado_obtenido))
+            if dado_extra == 6:
+                print("\n Jugador " + jugador.nombre + " Marcado, saca 6 para segir jugando")
+                print("\n" + jugador.nombre + " esta en  " + str(jugador.posicion))
+                jugador.estado = True
+                jugador.posicion = 1
+                return jugador.posicion
+
     time.sleep(TIEMPO_DE_ESPERA)
     jugador.posicion = escalerasSerpientes(jugador, dado_obtenido)
     ganador(jugador)
