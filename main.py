@@ -27,8 +27,26 @@ serpientes = {
     99: 63
 }
 
-cambio = [50 ,25, 75]
+#Casillas especailes que cambian el sentido
+giro = [50 ,25, 75, 2, 7, 12]
 
+# Sentido que puede tomar el juego horario (1,2,3,4)
+horario = {
+    1: 4,
+    2: 1,
+    3: 2,
+    4: 3
+}
+
+# Sentido que puede tomar el juego amti-horario (4,3,2,1)
+antiHorario = {
+    1: 2,
+    2: 3,
+    3: 4,
+    4: 1
+}
+
+#Casilas de escalera
 escaleras = {
     3: 20,
     6: 14,
@@ -45,6 +63,7 @@ escaleras = {
     88: 91
 }
 
+#Busca si el jugador cumple las condiciones para ganar la partida
 def ganador(nombre_jugador, posicion):
     time.sleep(TIEMPO_DE_ESPERA)
     if posicion >= META:
@@ -52,6 +71,7 @@ def ganador(nombre_jugador, posicion):
         print("\n FELICITACIONES " + nombre_jugador)
         sys.exit(1)
 
+#Verifica si un jugadr ha caido en una escalera o serpiente y realiza la operacion
 def escalerasSerpientes(nombre_jugador, posicion_jugador, dado):
     time.sleep(TIEMPO_DE_ESPERA)
     posicion_actual = posicion_jugador
@@ -78,6 +98,23 @@ def get_dadoValor():
     dado_obtenido = random.randint(MIN_DADO, MAX_DADO)
     print(str(dado_obtenido))           #Muestra el valor del dado obtenido
     return dado_obtenido
+
+#Cambia el sentido de la partida 
+def cambio(posicion, turno_jugador, sentido):
+    if posicion in giro:
+        if sentido == 1:
+            turno_jugador = horario.get(turno_jugador)
+        if sentido == 2:
+            turno_jugador = antiHorario.get(turno_jugador)
+        print("\n !!!Cambio de sentido!!! ")
+        if (sentido == 1):
+            sentido = 2 
+        elif (sentido == 2):
+            sentido = 1
+        return (turno_jugador, sentido)
+    if sentido == 2:
+        return (turno_jugador - 1), sentido
+    return (turno_jugador + 1), sentido
 
 #Turno del jugador
 def turno(nombre, posicion):
@@ -116,13 +153,32 @@ def inicioPartida():
     J3_posicion = 0
     J4_posicion = 0
 
+    turno_para_jugar = 1
     sentido = 1
 
     while True:
-        J1_posicion = turno(J1_nombre, J1_posicion)
-        J2_posicion = turno(J2_nombre, J2_posicion)
-        J3_posicion = turno(J3_nombre, J3_posicion)
-        J4_posicion = turno(J4_nombre, J4_posicion)
+
+        if turno_para_jugar == 1:
+            J1_posicion= turno(J1_nombre, J1_posicion)
+            turno_para_jugar, sentido = cambio(J1_posicion, turno_para_jugar, sentido)
+            print ("\n # sentido " + str(sentido) + ", turno " + str(turno_para_jugar))
+        if turno_para_jugar == 2:
+            J2_posicion= turno(J2_nombre, J2_posicion)
+            turno_para_jugar, sentido = cambio(J2_posicion, turno_para_jugar, sentido)
+            print ("\n # sentido " + str(sentido) + ", turno " + str(turno_para_jugar))
+        if turno_para_jugar == 3:
+            J3_posicion= turno(J3_nombre, J3_posicion)
+            turno_para_jugar, sentido = cambio(J3_posicion, turno_para_jugar, sentido)
+            print ("\n # sentido " + str(sentido) + ", turno " + str(turno_para_jugar))
+        if turno_para_jugar == 4:
+            J4_posicion= turno(J4_nombre, J4_posicion)
+            turno_para_jugar, sentido = cambio(J4_posicion, turno_para_jugar, sentido)
+            print ("\n # sentido " + str(sentido) + ", turno " + str(turno_para_jugar))
+
+        if turno_para_jugar == 5:
+            turno_para_jugar = 1
+        if turno_para_jugar == 0:
+            turno_para_jugar = 4
 
 
 #Inicio de la aplicacion
