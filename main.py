@@ -34,7 +34,7 @@ antiHorario = {
 #Busca si el jugador cumple las condiciones para ganar la partida
 def ganador(jugador):
     time.sleep(TIEMPO_DE_ESPERA)
-    if jugador.posicion >= META:
+    if jugador.posicion = META:
         print("\n\n\n\n\n" + jugador.nombre + " GANO EL JUEGO")
         print("\n FELICITACIONES " + jugador.nombre)
         sys.exit(1)
@@ -44,6 +44,10 @@ def escalerasSerpientes(jugador, dado):
     time.sleep(TIEMPO_DE_ESPERA)
     posicion_actual = jugador.posicion
     posicion_obtenida = jugador.posicion + dado
+
+    if posicion_obtenida > MAX_DADO:
+        print("Necesitas " + str(MAX_DADO - posicion_actual) + " Para Ganar")
+        return posicion_actual
 
     print("\n" + jugador.nombre + " esta en  " + str(posicion_obtenida))
 
