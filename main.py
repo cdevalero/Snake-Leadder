@@ -1,224 +1,102 @@
+import pygame                                               #Libreria pygame, debe estar previamente instaldada
+import sys
+import logica
 import time
 import random
 import sys
-import logicaTablero            #Logica de los tableros posibles
+import graficos
+from pygame.locals import *
 
-#constantes 
-TIEMPO_DE_ESPERA = 0.5            
-META = 100
-MAX_DADO = 6           #numero maximo que puede sacar el dado (6), dos dados (12)
-MIN_DADO = 1            #numero minimo que puede sacar el dado (1), dos daos (2)
+#inicializacion de pygame, para la visualizacion de ventanas
+pygame.init()
 
-#Objeto Jugador
-class jugador:
-    nombre = ""
-    posicion = 1
-    estado = False
+def pantalla_3(turno, sentido, j1, j2, j3 ,j4, tablero):
+    turno, sentido = logica.play(turno, sentido, j1, j2, j3 ,j4, tablero)
+    return turno, sentido
 
-class tableroJuego:
-    nombre = 0
-    giro = logicaTablero.giro
-    serpientes = logicaTablero.serpientes
-    escaleras = logicaTablero.escaleras
 
-# Sentido que puede tomar el juego horario (1,2,3,4)
-horario = {
-    1: 4,
-    2: 1,
-    3: 2,
-    4: 3
-}
+def pantalla_2():
+    clik = pygame.mouse.get_pos()
+    time.sleep(logica.TIEMPO_DE_ESPERA)
+    if (clik[0] > 550 and clik[0] <750 and clik[1] > 275 and clik[1] <375):
+        tablero = logica.definirTablero()
+        graficos.inicio.blit(graficos.fondo_juego, (0,0))
+        if (tablero.nombre == 1):
+            graficos.inicio.blit(graficos.tablero_1,(500,25))
+        if (tablero.nombre == 2):
+            graficos.inicio.blit(graficos.tablero_2,(500,25))
+        if (tablero.nombre == 3):
+            graficos.inicio.blit(graficos.tablero_3,(500,25))
+        if (tablero.nombre == 4):
+            graficos.inicio.blit(graficos.tablero_4,(500,25))
+        if (tablero.nombre == 5):
+            graficos.inicio.blit(graficos.tablero_5,(500,25))
+        if (tablero.nombre == 6):
+            graficos.inicio.blit(graficos.tablero_6,(500,25))
+        graficos.inicio.blit(graficos.j_naranja,(26,26))
+        graficos.inicio.blit(graficos.J_rojo,(132,26))
+        graficos.inicio.blit(graficos.J_azul,(238,26))
+        graficos.inicio.blit(graficos.j_blanco,(344,26))
+        graficos.inicio.blit(graficos.boton_jugar,(262,225))
+        puntuacion = graficos.fuente.render("1",0,(0,0,0),(255,255,255))
+        graficos.inicio.blit(puntuacion,(65,130))
+        puntuacion = graficos.fuente.render("1",0,(0,0,0),(255,255,255))
+        graficos.inicio.blit(puntuacion,(170,130))
+        puntuacion = graficos.fuente.render("1",0,(0,0,0),(255,255,255))
+        graficos.inicio.blit(puntuacion,(275,130))
+        puntuacion = graficos.fuente.render("1",0,(0,0,0),(255,255,255))
+        graficos.inicio.blit(puntuacion,(380,130))
+        return 3, tablero
 
-# Sentido que puede tomar el juego amti-horario (4,3,2,1)
-antiHorario = {
-    1: 2,
-    2: 3,
-    3: 4,
-    4: 1
-}
+def pantalla_1():
+    clik = pygame.mouse.get_pos()
+    time.sleep(logica.TIEMPO_DE_ESPERA)
+    if   (clik[0] > 550 and clik[0] < 750 and clik[1] > 25 and clik[1] <125):  # Servidor
+        graficos.inicio.blit(graficos.fondo_juego, (0,0))
+        graficos.inicio.blit(graficos.mini_t1, (100,5))
+        graficos.inicio.blit(graficos.mini_t2, (100,135))
+        graficos.inicio.blit(graficos.mini_t3, (100,265))
+        graficos.inicio.blit(graficos.mini_t4, (240,5))
+        graficos.inicio.blit(graficos.mini_t5, (240,135))
+        graficos.inicio.blit(graficos.mini_t6, (240,265))
+        graficos.inicio.blit(graficos.escoger_tablero, (550,275)) 
+        # envia la trama
+        return 2
+    elif (clik[0] > 550 and clik[0] < 750 and clik[1] > 150 and clik[1] <250): # Cliente
+        # espera la trama
+        return 3; 
+    elif (clik[1] > 275 and clik[1] <375 and clik[0] > 550 and clik[0] < 750):  # Juego. PUEDE QUE NO ME INTERESE ESTE BOTON    
+        graficos.inicio.blit(graficos.fondo_juego, (0,0))
+        graficos.inicio.blit(graficos.mini_t1, (100,5))
+        graficos.inicio.blit(graficos.mini_t2, (100,135))
+        graficos.inicio.blit(graficos.mini_t3, (100,265))
+        graficos.inicio.blit(graficos.mini_t4, (240,5))
+        graficos.inicio.blit(graficos.mini_t5, (240,135))
+        graficos.inicio.blit(graficos.mini_t6, (240,265))
+        graficos.inicio.blit(graficos.escoger_tablero, (550,275)) 
+        return 2
+    return 1
 
-#Busca si el jugador cumple las condiciones para ganar la partida
-def ganador(jugador):
-    time.sleep(TIEMPO_DE_ESPERA)
-    if jugador.posicion == META:
-        print("\n\n\n\n\n" + jugador.nombre + " GANO EL JUEGO")
-        print("\n FELICITACIONES " + jugador.nombre)
-        sys.exit(1)
 
-#Verifica si un jugadr ha caido en una escalera o serpiente y realiza la operacion
-def escalerasSerpientes(jugador, dado, tablero):
-    time.sleep(TIEMPO_DE_ESPERA)
-    posicion_actual = jugador.posicion
-    posicion_obtenida = jugador.posicion + dado
-
-    if posicion_obtenida > META:
-        print("Necesitas " + str(MAX_DADO - posicion_actual) + " Para Ganar")
-        return posicion_actual
-
-    print("\n" + jugador.nombre + " esta en  " + str(posicion_obtenida))
-
-    if posicion_obtenida in tablero.serpientes:
-        posicion_final = tablero.serpientes.get(posicion_obtenida)
-        print("\n" + jugador.nombre + " Se lo comio una serpiente, ahora esta en  " + str(posicion_final))
-
-    elif posicion_obtenida in tablero.escaleras:
-        posicion_final = tablero.escaleras.get(posicion_obtenida)
-        print("\n" + jugador.nombre + " Subio una escalera, ahora esta " + str(posicion_final))
-
-    else:
-        posicion_final = posicion_obtenida
-
-    return posicion_final
-
-#Rol del dado
-def get_dadoValor():
-    time.sleep(TIEMPO_DE_ESPERA)
-    dado_obtenido = random.randint(MIN_DADO, MAX_DADO)
-    print("Dado: " + str(dado_obtenido) )           #Muestra el valor del dado obtenido
-    return dado_obtenido
-
-#Cambia el sentido de la partida 
-def cambio(jugador, turno_jugador, sentido, tablero):
-    if jugador.posicion in tablero.giro:
-        if sentido == 1:
-            turno_jugador = horario.get(turno_jugador)
-        if sentido == 2:
-            turno_jugador = antiHorario.get(turno_jugador)
-        print("\n !!!Cambio de sentido!!! ")
-        if (sentido == 1):
-            sentido = 2 
-        elif (sentido == 2):
-            sentido = 1
-        return (turno_jugador, sentido)
-    if sentido == 2:
-        return (turno_jugador - 1), sentido
-    return (turno_jugador + 1), sentido
-
-#Turno del jugador
-def turno(jugador, tablero):
-    time.sleep(TIEMPO_DE_ESPERA)
-    input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ")            #imput para gira el dado
-    dado_obtenido = get_dadoValor()
-
-    #Revisa si el jugador esta maccado para poder jugar correctamente
-    if (jugador.estado == True and dado_obtenido != 6):
-        print("\n Tienes que sacar 6 para poder volver a jugar \n")
-        print("\n" + jugador.nombre + " esta en  " + str(jugador.posicion))
-        return jugador.posicion
-    elif (jugador.estado == True and dador_obtenido == 6):
-        jugador.estado = False
-
-    #Si saca 6 vuelve a jugar, si saca 6, 3 veces vuleve a la casilla 1
-    if dado_obtenido == 6:
-        input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ") 
-        dado_extra = get_dadoValor()
-        dado_obtenido = dado_obtenido + dado_extra 
-        print("\n las suma de los dados es " + str(dado_obtenido))
-        if dado_extra == 6:
-            input_1 = input("\n" + jugador.nombre + ": " + " Lanza el dado ") 
-            dado_extra = get_dadoValor()
-            dado_obtenido = dado_obtenido + dado_extra
-            print("\n las suma de los dados es " + str(dado_obtenido))
-            if dado_extra == 6:
-                print("\n Jugador " + jugador.nombre + " Marcado, saca 6 para segir jugando")
-                print("\n" + jugador.nombre + " esta en  " + str(jugador.posicion))
-                jugador.estado = True
-                jugador.posicion = 1
-                return jugador.posicion
-
-    time.sleep(TIEMPO_DE_ESPERA)
-    jugador.posicion = escalerasSerpientes(jugador, dado_obtenido, tablero)
-    ganador(jugador)
-    return jugador.posicion
-
-#Escoge cual de los 6 tableros va a usar en funcion de en numero que salga en el dado
-def definirTablero():
-    input_1 = input("\nLanza el dado para escoger que tablero se va a jugar") 
-    dado_obtenido = get_dadoValor()
-    print ("\n el tablero seleccionado fue el: " + str(dado_obtenido))
-    tablero = tableroJuego()
-    if dado_obtenido == 1:
-        tablero.nombre = 1
-        tablero.giro = logicaTablero.giro1
-        tablero.escaleras = logicaTablero.escaleras1
-        tablero.serpientes = logicaTablero.serpientes1
-    elif dado_obtenido == 2:
-        tablero.nombre = 2
-        tablero.giro = logicaTablero.giro2
-        tablero.escaleras = logicaTablero.escaleras2
-        tablero.serpientes = logicaTablero.serpientes2
-    elif dado_obtenido == 3:
-        tablero.nombre = 3
-        tablero.giro = logicaTablero.giro3
-        tablero.escaleras = logicaTablero.escaleras3
-        tablero.serpientes = logicaTablero.serpientes3
-    elif dado_obtenido == 4:
-        tablero.nombre = 4
-        tablero.giro = logicaTablero.giro4
-        tablero.escaleras = logicaTablero.escaleras4
-        tablero.serpientes = logicaTablero.serpientes4
-    elif dado_obtenido == 5:
-        tablero.nombre = 5
-        tablero.giro = logicaTablero.giro5
-        tablero.escaleras = logicaTablero.escaleras5
-        tablero.serpientes = logicaTablero.serpientes5
-    elif dado_obtenido == 6:
-        tablero.nombre = 6
-        tablero.giro = logicaTablero.giro6
-        tablero.escaleras = logicaTablero.escaleras6
-        tablero.serpientes = logicaTablero.serpientes6
-    return tablero
-
-#Asigna nombre a los jugadores
-def definirJugadores():
-    J1 = jugador()
-    J1.nombre = "Naranja"
-    J2 = jugador()
-    J2.nombre = "Rojo"
-    J3 = jugador()
-    J3.nombre = "Azul"
-    J4 = jugador()
-    J4.nombre = "Blanco"
-    return J1, J2, J3, J4
-
-def Mensaje_inicioPartida():
-    mensaje = """
-    La partida acaba de iniciar.
-    
-    """
-    print(mensaje)
-
-#Funcion de inicio de la partida
-def inicioPartida():
-    Mensaje_inicioPartida()             #Mensaje de consola que lanza al inicar partida
-    time.sleep(TIEMPO_DE_ESPERA)
-    J1, J2, J3, J4 = definirJugadores() #Definiendo jugadores
-    time.sleep(TIEMPO_DE_ESPERA)
-    tablero = definirTablero()
-
+def empezarPartida():
     turno_para_jugar = 1
-    sentido = 1
-
+    sentido = 0
+    ventana = 1
+    J1, J2, J3, J4 = logica.definirJugadores()
     while True:
+        for evento in pygame.event.get():
+            if evento.type == QUIT:                             #detecta cuando el usuario le da a la X en el programa
+                pygame.quit()
+                sys.exit()
+        if (ventana == 3  and pygame.mouse.get_pressed() == (1,0,0)):
+            turno_para_jugar, sentido = pantalla_3(turno_para_jugar, sentido, J1, J2, J3, J4, tablero)
+        elif (ventana == 2  and pygame.mouse.get_pressed() == (1,0,0)):
+            ventana, tablero = pantalla_2()
+        elif (ventana == 1  and pygame.mouse.get_pressed() == (1,0,0)):
+            ventana = pantalla_1()
+        pygame.display.update()            
 
-        if turno_para_jugar == 1:
-            J1.posicion= turno(J1, tablero)
-            turno_para_jugar, sentido = cambio(J1, turno_para_jugar, sentido, tablero)
-        if turno_para_jugar == 2:
-            J2.posicion= turno(J2, tablero)
-            turno_para_jugar, sentido = cambio(J2, turno_para_jugar, sentido, tablero)
-        if turno_para_jugar == 3:
-            J3.posicion= turno(J3, tablero)
-            turno_para_jugar, sentido = cambio(J3, turno_para_jugar, sentido, tablero)
-        if turno_para_jugar == 4:
-            J4.posicion= turno(J4, tablero)
-            turno_para_jugar, sentido = cambio(J4, turno_para_jugar, sentido, tablero)
-
-        if turno_para_jugar == 5:
-            turno_para_jugar = 1
-        if turno_para_jugar == 0:
-            turno_para_jugar = 4
 
 #Inicio de la aplicacion
 if __name__ == "__main__":
-    inicioPartida()
+    empezarPartida()

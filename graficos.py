@@ -1,13 +1,5 @@
 import pygame                                               #Libreria pygame, debe estar previamente instaldada
-import sys
-
 from pygame.locals import *
-
-#Colores de las fichas
-naranja = pygame.Color(255,164,32)
-rojo = pygame.Color(255,0,0)
-azul = pygame.Color(0,0,255)
-blanco = pygame.Color(255,255,255)
 
 pygame.display.set_caption("Escaleras y serpientes")
 
@@ -41,9 +33,15 @@ tablero_3 = pygame.image.load("imagenes/Tablero_3.png")
 tablero_4 = pygame.image.load("imagenes/Tablero_4.png")
 tablero_5 = pygame.image.load("imagenes/Tablero_5.png")
 tablero_6 = pygame.image.load("imagenes/Tablero_6.png")
+escoger_tablero = pygame.image.load("imagenes/boton_escoger.png")
+cuadro = pygame.image.load("imagenes/cuadro.png")
 
-#inicializacion de pygame, para la visualizacion de ventanas
-pygame.init()
+# Fuente
+pygame.font.init()
+fuente = pygame.font.Font(None, 40)
+fuente2 = pygame.font.Font(None, 30)
+fuente3 = pygame.font.Font(None, 80)
+fuente5 = pygame.font.Font(None, 200)
 
 # Pantalla Menu de inicio
 inicio = pygame.display.set_mode((900,400))                 #Dimension de la pantalla de inicio
@@ -53,24 +51,3 @@ inicio.blit(logo_juego, (20,0))
 inicio.blit(boton_servidor_juego, (550,25))
 inicio.blit(boton_buscar_partida, (550,150))
 inicio.blit(boton_empezar, (550,275))
-
-# Pantalla escoger tablero
-
-#pantalla_tablero = pygame.display.set_mode((900,400))
-
-#pantalla_tablero.blit(fondo_juego, (0,0))
-#pantalla_tablero.blit(mini_t1, (100,5))
-#pantalla_tablero.blit(mini_t2, (100,135))
-#pantalla_tablero.blit(mini_t3, (100,265))
-#pantalla_tablero.blit(mini_t4, (240,5))
-#pantalla_tablero.blit(mini_t5, (240,135))
-#pantalla_tablero.blit(mini_t6, (240,265))
-
-
-while True:
-    # inicio.fill(blanco)
-    for evento in pygame.event.get():
-        if evento.type == QUIT:                             #detecta cuando el usuario le da a la X en el programa
-            pygame.quit()
-            sys.exit()
-    pygame.display.update()                                 #Refresco de la ventana 
